@@ -19,16 +19,11 @@ app.use(express.urlencoded({
 }));
 app.use(express.json());
 
+//how to access your static files which are files you will never modify
 app.use(express.static(path.join(__dirname, 'public')));
-
-//customer DATA
-let notesData = [
-
-];
 
 //ROUTING
 //create routing to serve notes html when the user clicks the button
-
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "./public/index.html"));
 })
@@ -37,40 +32,41 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, "./public/notes.html"));
 })
 
-// Displays all the notes created
+// GET `/api/notes` - Should read the `db.json` file and return all saved notes as JSON.
 app.get("/api/notes", function (req, res) {
-    // let noteSaved = readFileAsync("./db/db.json", "utf8").then(function(){
-    //     noteSaved = JSON.parse(noteSaved)
-    //     console.log(noteSaved)
-    // }).catch(function(err){
-    //     return console.log(err)
-    // })
-    return res.json(notesData);
+    readFileAsync("./db/db.json", "utf8").then(function (data) {
+        data = JSON.parse(data)
+        console.log(data)
+        return res.json(data);
+    })
 });
 
 
-// Create new note - takes in JSON input
+// POST `/api/notes` - Should recieve a new note to save on the request body, add it to the `db.json` file, and then return the new note to the client.
 app.post("/api/notes", function (req, res) {
     // req.body hosts is equal to the JSON post sent from the user
     // This works because of our body parsing middleware
     var newNotes = req.body;
-    notesData.push(newNotes)
+    console.log(newNotes)
 
-    // console.log(notesData)
-
-    //push the object of array into db.json by using writefile
-    // writeFileAsync("./db/db.json", JSON.stringify(newNotes));
-
-    res.send("Created a new note!")
+    //read the db.json file to grab the arrays of object and return json
+    readFileAsync("./db/db.json", "utf8").then(function (data) {
+        data = JSON.parse(data)
+        console.log(data)
+        //    push the new data into the db.json
+        data.push(newNotes)
+        //once the new note is added to the array from db.json file then write the upated changes
+        writeFileAsync("./db/db.json", JSON.stringify(data));
+    })
+    res.send("created notes!")
 })
 
 
-// Create New Characters - takes in JSON input
-app.post("/api/clear", function (req, res) {
+// DELETE `/api/notes/:id` - Should recieve a query paramter containing the id of a note to delete. This means you'll need to find a way to give each note a unique `id` when it's saved. In order to delete a note, you'll need to read all notes from the `db.json` file, remove the note with the given `id` property, and then rewrite the notes to the `db.json` file.
+app.delete("/api/notes/:id", function (req, res) {
     // This works because of our body parsing middleware
-    notesData = []
+    //auto increment integer
     res.send("cleared!")
-
 });
 
 app.listen(PORT, function () {
