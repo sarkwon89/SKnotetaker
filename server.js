@@ -39,10 +39,13 @@ app.get('/notes', (req, res) => {
 
 // Displays all the notes created
 app.get("/api/notes", function (req, res) {
-    let noteSaved = readFileAsync("./db/db.json", "utf8")
-
-    console.log(noteSaved)
-    return res.json(noteSaved);
+    // let noteSaved = readFileAsync("./db/db.json", "utf8").then(function(){
+    //     noteSaved = JSON.parse(noteSaved)
+    //     console.log(noteSaved)
+    // }).catch(function(err){
+    //     return console.log(err)
+    // })
+    return res.json(notesData);
 });
 
 
@@ -56,7 +59,7 @@ app.post("/api/notes", function (req, res) {
     // console.log(notesData)
 
     //push the object of array into db.json by using writefile
-    writeFileAsync("./db/db.json", JSON.stringify(notesData));
+    // writeFileAsync("./db/db.json", JSON.stringify(newNotes));
 
     res.send("Created a new note!")
 })
