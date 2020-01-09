@@ -58,8 +58,13 @@ app.post("/api/notes", function (req, res) {
     // This works because of our body parsing middleware
     var newNotes = req.body;
     notesData.push(newNotes)
-     //write file 
-     writeFileAsync("./db/db.json", notesData)
+
+    //push the object of array into db.json
+    
+    notes = JSON.stringify(notesData)
+    console.log(notes)
+    // //  //write file 
+     writeFileAsync("./db/db.json", (notes))
 
     res.send("Created a new note!")
 })
