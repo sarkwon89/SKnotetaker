@@ -9,6 +9,7 @@ let app = express();
 
 const writeFileAsync = util.promisify(fs.writeFile);
 const appendFileAsync = util.promisify(fs.appendFile);
+const readFileAsync = util.promisify(fs.readFile);
 
 //In order to make sure your server works on local & heroku you have to make sure the commandline looks like this
 //process.env.PORT=heroku's port or local port
@@ -25,7 +26,6 @@ let notesData = [
 
 ];
 
-
 //ROUTING
 //create routing to serve notes html when the user clicks the button
 
@@ -37,11 +37,29 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, "./public/notes.html"));
 })
 
-
 // Displays all the notes created
 app.get("/api/notes", function (req, res) {
-    return res.json(notesData);
+    let noteSaved = readFileAsync("./db/db.json", "utf8")
+
+    console.log(noteSaved)
+    return res.json(noteSaved);
 });
+
+
+// Create new note - takes in JSON input
+app.post("/api/notes", function (req, res) {
+    // req.body hosts is equal to the JSON post sent from the user
+    // This works because of our body parsing middleware
+    var newNotes = req.body;
+    notesData.push(newNotes)
+
+    // console.log(notesData)
+
+    //push the object of array into db.json by using writefile
+    writeFileAsync("./db/db.json", JSON.stringify(notesData));
+
+    res.send("Created a new note!")
+})
 
 
 // Create New Characters - takes in JSON input
@@ -51,24 +69,6 @@ app.post("/api/clear", function (req, res) {
     res.send("cleared!")
 
 });
-
-// Create New Characters - takes in JSON input
-app.post("/api/notes", function (req, res) {
-    // req.body hosts is equal to the JSON post sent from the user
-    // This works because of our body parsing middleware
-    var newNotes = req.body;
-    notesData.push(newNotes)
-
-    //push the object of array into db.json
-    
-    notes = JSON.stringify(notesData)
-    console.log(notes)
-    // //  //write file 
-     writeFileAsync("./db/db.json", (notes))
-
-    res.send("Created a new note!")
-})
-
 
 app.listen(PORT, function () {
     console.log("listenin on port" + PORT);
